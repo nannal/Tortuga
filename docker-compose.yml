@@ -1,0 +1,105 @@
+version: '3'
+services:
+  plex:
+    image: linuxserver/plex
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - plexconfig:/config
+      - tv:/tv
+      - films:/films
+      - music:/music
+      - transcode:/transcode
+
+  sonarr:
+    container_name: tv
+    image: linuxserver/sonarr
+    restart: unless-stopped
+    volumes:
+      - sonarronfig:/config
+      - tv:/tv
+    labels:
+      - traefik.port=8989
+
+  radarr:
+    container_name: film
+    image: linuxserver/radarr
+    restart: unless-stopped
+    volumes:
+      - plexconfig:/config
+      - films:/films
+    labels:
+      - traefik.port=7878
+
+  lidarr:
+    container_name: music
+    image: linuxserver/lidarr
+    restart: unless-stopped
+    volumes:
+      - radarrconfig:/config
+      - music:/music
+    labels:
+      - traefik.port=8686
+
+  jackett:
+    container_name:
+    image: linuxserver/jackett
+    restart: unless-stopped
+    volumes:
+      - jackettconfig:/config
+    labels:
+      - traefik.port=9117
+
+  qbittorrent:
+    container_name: torrent
+    image: linuxserver/qbittorrent
+    restart: unless-stopped
+    volumes:
+      - qbittorrentonfig:/config
+      - tv:/tv
+      - films:/films
+      - music:/music
+    environment:
+      - WEBUI_PORT=8080 #admin/adminadmin
+    ports:
+      - 6881:6881
+      - 6881:6881/udp
+    labels:
+      - traefik.port=8080
+
+  traefik:
+    image: traefik
+    restart: unless-stopped
+    volumes:
+      - traefikconfig:/etc/traefik/
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+
+    portainer:
+      container_name: admin
+      image: portainer/portainer
+      restart: unless-stopped
+      volumes:
+       - portainerconfig:/data
+       - /var/run/docker.sock:/var/run/docker.sock
+      labels:
+        - traefik.port=9000
+
+
+volumes:
+  plexconfig:
+  sonarrconfig:
+  radarrconfig:
+  lidarrconfig:
+  jackettconfig:
+  qbittorrentconfig:
+  traefikconfig:
+  portainerconfig:
+
+  tv:
+  films:
+  music:
+  transcode:
