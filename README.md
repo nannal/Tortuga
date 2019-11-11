@@ -1,6 +1,6 @@
 # Tortuga
 
-## This tool can (only) be used to commit the abhorrent crime of violating the copyright of billionaires, by using it you could be prosecuted by your local authority, the author refuses to take any responsibility for actions performed using the provided tools and guide or consequences therefor.
+## This tool can (only) be used to commit the abhorrent crime of violating the copyright of billionaires, by using it you could be prosecuted by your local authority, the author refuses to take any responsibility for actions performed using the provided tools and guide or consequences there of.
 
 An all-in-one docker based media server & content acquiring service.
 
@@ -16,9 +16,13 @@ If you require assistance bother someone who knows the difference between DNS an
 
 ## Docker Compose
 
-Initially run the docker compose file by cloning this repo and running
+Initially edit the docker compose file by cloning this repo using a find and replace to change domain.top to *domain.name*
 
-    docker-compose do the thing
+If you mess up here and actually update the file to say domain.name and not your chosen domain you really have fallen at the first hurdle and should be treated similar compassion shown to race horses.
+
+Then go into the Tortuga directory and run:
+
+    docker-compose up
 
 This will download, create volumes for, assign the appropriate ports and run the docker containers for
 
@@ -35,10 +39,9 @@ This will download, create volumes for, assign the appropriate ports and run the
 If you already have services running in docker and don't want someone to come alone and mess the whole operation up, you're probably smart enough to modify the compose file as needed.
 
 ## Configuring each service
-Each service is running either from its default provider or alternatively the well respected linuxserver.io provider.
 
 ### portainer
-visit https://admin.domain.name
+visit https://portainer.tortuga.domain.name
 
 You will be provided the below page:
 
@@ -46,27 +49,85 @@ You will be provided the below page:
 
 Once you have created a password, you may login and see all the running services, you can add new services or remove them at will, it's pretty neat. Portainers parent organisation are currently burning VC money [citation needed] and want you to buy premium services, you shouldn't need them and don't rely on Portainer to manage docker should you wish to become hacker leet pro.
 
+You then need to click "local" to ensure the portainer instance connects to the locally running version of docker.
+
+You can then click local and containers to see all running containers.
 
 ### qbittorrent
-visit https://torrent.domain.name
+visit https://qbittorrent.tortuga.domain.name/
 login with the following credentials: admin/adminadmin
 
-#### Change the password by clicking :
 
-#### Create three catagories by clicking:
+#### Create three categories
+right click "uncategorised" and new, then create a category for tv, films and music with the path /tv /films and /music
 
-This is the service we will be using to download all of your media
+
+#### Change the password
+
+click the cog icon (left most of the icons) click webui and update the password **Failure to do so will allow anyone to cause you to download and provide access to files of their choosing, you have been warned**
 
 ### jackett
+https://jackett.tortuga.domain.name
+
+
+#### Setup
+Store the API key
+
+click "Add indexer"
+
+search for your favourite torrent sites
+
+click the green + mark
+
+#### Configure an admin password
+
+set a password and press the "set password button", it's not rocket science
+
 
 ### sonarr
+https://sonarr.tortuga.domain.name
+
+
+## Adding an indexer
+Adding a Jackett indexer in Sonarr or Radarr
+
+    Go to Settings > Indexers > Add > Torznab > Custom.
+
+Click on the indexers corresponding button and paste it into the Sonarr/Radarr URL field. For the API key use the value shown. Configure the correct category IDs via the (Anime) Categories options. See the Jackett indexer configuration for a list of supported categories.
+
+## Adding a download client
+
+Click download client, click torrent client, click qbittorent, fill in the form with probably the right the values
+
+## Configure an admin password
+
+
+## adding TV series
+
+click the stuff
 
 ### radarr
 
+repeat the same steps as sonarr
+
 ### lidarr
 
-### traefik
+repeat the same steps as sonarr
 
 ### plex
 
+#### Setup
+
+visit: https://10.0.0.100:32400/web/index.html
+
+follow all the setps, add the folders as needed
+
+tv: /tv
+
+films: /films
+
+music: /music
+
+
+----
 The author does not accept payment for this service however private tracker invites can be mailed to tortuga@nannal.com

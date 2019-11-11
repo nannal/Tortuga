@@ -1,6 +1,7 @@
 version: '3'
 services:
   plex:
+    container_name: plex
     image: linuxserver/plex
     network_mode: host
     restart: unless-stopped
@@ -16,10 +17,14 @@ services:
     image: linuxserver/sonarr
     restart: unless-stopped
     volumes:
-      - sonarronfig:/config
+      - sonarrconfig:/config
       - tv:/tv
     labels:
       - traefik.port=8989
+    environment:
+      - PUID=0
+      - PGID=0
+      - UMASK_SET=022
 
   radarr:
     container_name: film
@@ -30,6 +35,10 @@ services:
       - films:/films
     labels:
       - traefik.port=7878
+    environment:
+      - PUID=0
+      - PGID=0
+      - UMASK_SET=022
 
   lidarr:
     container_name: music
@@ -40,9 +49,13 @@ services:
       - music:/music
     labels:
       - traefik.port=8686
+    environment:
+      - PUID=0
+      - PGID=0
+      - UMASK_SET=022
 
   jackett:
-    container_name:
+    container_name: source
     image: linuxserver/jackett
     restart: unless-stopped
     volumes:
@@ -55,7 +68,7 @@ services:
     image: linuxserver/qbittorrent
     restart: unless-stopped
     volumes:
-      - qbittorrentonfig:/config
+      - qbittorrentconfig:/config
       - tv:/tv
       - films:/films
       - music:/music
@@ -68,25 +81,43 @@ services:
       - traefik.port=8080
 
   traefik:
-    image: traefik
+    container_name: traefik
+    image: "traefik"
     restart: unless-stopped
     volumes:
-      - traefikconfig:/etc/traefik/
-      - /var/run/docker.sock:/var/run/docker.sock
+        - "/var/run/docker.sock:/var/run/docker.sock:ro"
     ports:
       - 80:80
       - 443:443
       - 8080:8080
+    command:
+      - --debug=false
+      - --logLevel=ERROR
+      - --defaultentrypoints=https,http
+      - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
+      - --entryPoints=Name:https Address::443 TLS
+      - --retry
+      - --docker.endpoint=unix:///var/run/docker.sock
+      - --docker.domain=vno.nannal.com
+      - --docker.watch=true
+      - --docker.exposedbydefault=true
+      - --acme.email=tortuga@nannal.com
+      - --acme.storage=acme.json
+      - --acme.entryPoint=https
+      - --acme.onHostRule=true
+      - --acme.httpchallenge.entrypoint=http
+      - --api.dashboard=true
 
-    portainer:
-      container_name: admin
-      image: portainer/portainer
-      restart: unless-stopped
-      volumes:
-       - portainerconfig:/data
-       - /var/run/docker.sock:/var/run/docker.sock
-      labels:
-        - traefik.port=9000
+
+  portainer:
+    container_name: admin
+    image: portainer/portainer
+    restart: unless-stopped
+    volumes:
+     - portainerconfig:/data
+     - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - traefik.port=9000
 
 
 volumes:
